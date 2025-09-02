@@ -66,6 +66,18 @@
     .form-actions button:hover {
       background-color: #1A2A38;
     }
+
+    /* Disclaimer styling */
+    .disclaimer-label {
+      display: inline;
+      margin-left: 4px;
+    }
+    .disclaimer-text {
+      font-weight: bold;
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -141,6 +153,25 @@
             <label for="groupNumber">Group number (optional)</label>
             <input type="text" id="groupNumber" placeholder="Enter group number (optional)">
           </div>
+        </div>
+      </div>
+
+      <!-- Disclaimer checkbox -->
+      <div class="form-group">
+        <input type="checkbox" id="disclaimerCheck" required>
+        <label for="disclaimerCheck" class="disclaimer-label">I have read and agree to the following disclaimer:</label>
+        <div class="disclaimer-text">
+          <p><strong>Disclaimer:</strong> All services and medications offered through this platform are provided only after a licensed healthcare provider conducts an evaluation and determines that the requested therapy is safe, appropriate, and medically necessary.</p>
+          <p><strong>Some treatments may involve compounded or off-label medications that are not FDA-approved for all uses discussed.</strong></p>
+          <p><strong>Submission of a request through this platform does not guarantee approval or receipt of any medication or service. Access to therapy is subject to patient eligibility, applicable federal and state regulations, provider clinical judgment, and availability of medications.</strong></p>
+          <p><strong>Patients understand that telehealth services are limited to residents of California, Texas, and Florida, and services will only be provided where the supervising physician is licensed.</strong></p>
+          <p><strong>By proceeding, patients acknowledge that:</strong></p>
+          <ul>
+            <li>Final approval for any treatment rests solely with the provider.</li>
+            <li>Some services may not be available in all locations or for all conditions.</li>
+            <li>No statements on this website should be interpreted as a guarantee of results, medical advice, or a substitute for an in-person evaluation when required by law.</li>
+          </ul>
+          <p><strong>If you are experiencing a medical emergency, call 911 immediately.</strong></p>
         </div>
       </div>
       <div class="form-actions">
@@ -457,6 +488,105 @@
           { label: 'Do you have any metal implants or medical devices?', options: ['Yes', 'No'] },
           { label: 'Have you had a seizure in the past?', options: ['Yes', 'No'] },
           { label: 'Are you currently pregnant?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Semaglutide / Cyanocobalamin injection
+      semaglutide: {
+        title: 'Semaglutide + B12 Injection',
+        questions: [
+          { label: 'Are you currently overweight or obese?', options: ['Yes', 'No'] },
+          { label: 'Do you have type 2 diabetes or prediabetes?', options: ['Yes', 'No'] },
+          { label: 'Do you have a personal or family history of thyroid cancer or MEN2?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have severe kidney or liver disease?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Tirzepatide / Niacinamide injection
+      tirzepatide: {
+        title: 'Tirzepatide + Vitamin B3 Injection',
+        questions: [
+          { label: 'Do you have type 2 diabetes or prediabetes?', options: ['Yes', 'No'] },
+          { label: 'Do you have a personal or family history of thyroid cancer or MEN2?', options: ['Yes', 'No'] },
+          { label: 'Have you used GLP-1 or related medications before?', options: ['Yes', 'No'] },
+          { label: 'Do you have severe gastrointestinal disease like pancreatitis?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Testosterone Cypionate injection
+      testosterone: {
+        title: 'Testosterone Therapy Injection',
+        questions: [
+          { label: 'Are you male or female?', options: ['Male', 'Female', 'Other'] },
+          { label: 'Have you been diagnosed with low testosterone (hypogonadism)?', options: ['Yes', 'No'] },
+          { label: 'Do you have a history of prostate or breast cancer?', options: ['Yes', 'No'] },
+          { label: 'Are you currently receiving hormone therapy?', options: ['Yes', 'No'] },
+          { label: 'Do you have cardiovascular or blood clotting disorders?', options: ['Yes', 'No'] },
+        ],
+      },
+      // NAD+ injection
+      nad: {
+        title: 'NAD+ Revitalization Injection',
+        questions: [
+          { label: 'Are you currently pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have chronic medical conditions (e.g., heart disease, kidney disease)?', options: ['Yes', 'No'] },
+          { label: 'Have you used NAD+ infusions or injections before?', options: ['Yes', 'No'] },
+          { label: 'Are you allergic to any vitamins or supplements?', options: ['Yes', 'No'] },
+          { label: 'Are you currently taking any prescription medications?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Sermorelin Acetate injection (FDA-approved uses only)
+      sermorelin: {
+        title: 'Sermorelin Growth Hormone Injection',
+        questions: [
+          { label: 'Are you being treated for growth hormone deficiency?', options: ['Yes', 'No'] },
+          { label: 'Have you been evaluated by an endocrinologist for growth hormone therapy?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have active cancer or a history of cancer?', options: ['Yes', 'No'] },
+          { label: 'Is the patient under 18 years of age?', options: ['Yes', 'No'] },
+        ],
+      },
+      // HCG injection (FDA-approved uses only)
+      hcg: {
+        title: 'HCG Fertility Injection',
+        questions: [
+          { label: 'Are you using HCG for fertility treatment?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant or could be pregnant?', options: ['Yes', 'No'] },
+          { label: 'Do you have hormone-sensitive cancers (breast, prostate)?', options: ['Yes', 'No'] },
+          { label: 'Do you have ovarian, pituitary, or thyroid problems?', options: ['Yes', 'No'] },
+          { label: 'Are you under a healthcare provider’s supervision for HCG therapy?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Omnitrope injection (FDA-approved uses only)
+      omnitrope: {
+        title: 'Omnitrope Growth Hormone Injection',
+        questions: [
+          { label: 'Are you being treated for growth hormone deficiency?', options: ['Yes', 'No'] },
+          { label: 'Have you been evaluated by an endocrinologist for growth hormone therapy?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have active cancer or a history of cancer?', options: ['Yes', 'No'] },
+          { label: 'Is the patient under 18 years of age?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Tralement injection
+      tralement: {
+        title: 'Tralement Trace Elements Injection',
+        questions: [
+          { label: 'Are you receiving parenteral nutrition or IV feeding?', options: ['Yes', 'No'] },
+          { label: 'Have you been diagnosed with trace element deficiency?', options: ['Yes', 'No'] },
+          { label: 'Do you have known allergies to trace elements (copper, chromium, manganese, selenium, zinc)?', options: ['Yes', 'No'] },
+          { label: 'Do you have kidney or liver impairment?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant or breastfeeding?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Enclomiphene Citrate capsules (compounding off-label use)
+      enclomiphene: {
+        title: 'Enclomiphene Capsules (Off-Label)',
+        questions: [
+          { label: 'Are you seeking fertility treatment or testosterone support?', options: ['Yes', 'No'] },
+          { label: 'Have you had a recent semen analysis or testosterone level test?', options: ['Yes', 'No'] },
+          { label: 'Do you have a history of liver disease or elevated liver enzymes?', options: ['Yes', 'No'] },
+          { label: 'Do you have hormone-sensitive cancers (prostate, breast)?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant or breastfeeding?', options: ['Yes', 'No'] },
         ],
       },
     };
