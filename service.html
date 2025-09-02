@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Intake</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f9fc;
+      color: #333;
+    }
+    header {
+      background-color: #2C3E50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    main {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: #2C3E50;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .form-actions {
+      text-align: right;
+    }
+    .form-actions button {
+      padding: 8px 16px;
+      background-color: #2C3E50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .form-actions button:hover {
+      background-color: #1A2A38;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="pageTitle">Service Intake</h1>
+  </header>
+  <main>
+    <a href="index.html" class="back-link">&larr; Back to Services</a>
+    <form id="intakeForm">
+      <div class="form-group">
+        <label for="stateSelect">Where are you located?</label>
+        <select id="stateSelect" required>
+          <option value="">Select state</option>
+          <option value="CA">California</option>
+          <option value="TX">Texas</option>
+          <option value="FL">Florida</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ageSelect">Your age group</label>
+        <select id="ageSelect" required>
+          <option value="">Select age group</option>
+          <option value="under18">Under 18</option>
+          <option value="18-64">18 to 64</option>
+          <option value="65+">65 or older</option>
+        </select>
+      </div>
+      <div id="questionsContainer">
+        <!-- Service-specific questions will appear here -->
+      </div>
+      <div class="form-group">
+        <label for="nameInput">Full Name</label>
+        <input type="text" id="nameInput" placeholder="Enter your full name" required>
+      </div>
+      <div class="form-group">
+        <label for="dobInput">Date of Birth</label>
+        <input type="date" id="dobInput" required>
+      </div>
+      <!-- Payment and insurance details -->
+      <div class="form-group">
+        <label for="paymentSelect">How will you pay for your visit?</label>
+        <select id="paymentSelect" required>
+          <option value="">Select payment method</option>
+          <option value="insurance">I have insurance</option>
+          <option value="cash">I'm a cash patient</option>
+        </select>
+      </div>
+      <div id="insuranceDetails" style="display:none;">
+        <div class="form-group">
+          <label for="insuranceMethod">How would you like to provide your insurance details?</label>
+          <select id="insuranceMethod" required>
+            <option value="">Select option</option>
+            <option value="upload">Upload a copy of your insurance card</option>
+            <option value="manual">Enter manually</option>
+          </select>
+        </div>
+        <div id="insuranceUploadContainer" style="display:none;">
+          <div class="form-group">
+            <label for="insuranceUpload">Upload insurance card</label>
+            <input type="file" id="insuranceUpload" accept="image/*">
+          </div>
+        </div>
+        <div id="manualInsuranceContainer" style="display:none;">
+          <div class="form-group">
+            <label for="providerName">Insurance provider name</label>
+            <input type="text" id="providerName" placeholder="Enter provider name">
+          </div>
+          <div class="form-group">
+            <label for="memberId">Member ID</label>
+            <input type="text" id="memberId" placeholder="Enter member ID">
+          </div>
+          <div class="form-group">
+            <label for="groupNumber">Group number (optional)</label>
+            <input type="text" id="groupNumber" placeholder="Enter group number (optional)">
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </main>
+  <script>
+    // Define the service metadata and questions
+    const services = {
+      // Weight loss support
+      weight: {
+        title: 'Weight Loss Journey',
+        questions: [
+          { label: 'Are you currently overweight or obese?', options: ['Yes', 'No'] },
+          { label: 'Have you been diagnosed with diabetes or prediabetes?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Have you experienced pancreatitis or gallbladder disease?', options: ['Yes', 'No'] },
+          { label: 'Are you willing to use injectable medications?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Medication check & support
+      medication: {
+        title: 'Medication Check-Up',
+        questions: [
+          { label: 'Are you currently prescribed more than five medications?', options: ['Yes', 'No'] },
+          { label: 'Do you have trouble remembering to take your medications?', options: ['Yes', 'No'] },
+          { label: 'Do you experience side effects from your medications?', options: ['Yes', 'No'] },
+          { label: 'Are any of your medications controlled substances (e.g., opioids, benzodiazepines)?', options: ['Yes', 'No', 'Not sure'] },
+          { label: 'Are you willing to share a list of your medications with our team?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Chronic condition support
+      chronic: {
+        title: 'Chronic Care Coach',
+        questions: [
+          { label: 'Do you have two or more chronic conditions?', options: ['Yes', 'No'] },
+          { label: 'Which conditions are you managing?', options: ['Diabetes', 'High blood pressure', 'High cholesterol', 'Asthma', 'Other', 'None'] },
+          { label: 'Are you comfortable using telehealth services?', options: ['Yes', 'No'] },
+          { label: 'Do you need help with medications or lifestyle changes?', options: ['Yes', 'No'] },
+          { label: 'Do you have reliable phone or internet access?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Post-hospital care program
+      transitional: {
+        title: 'Post-Hospital Recovery',
+        questions: [
+          { label: 'Were you discharged from a hospital or nursing facility in the past 30 days?', options: ['Yes', 'No'] },
+          { label: 'Do you have a scheduled follow-up appointment with your doctor?', options: ['Yes', 'No'] },
+          { label: 'Do you have difficulty understanding your discharge instructions?', options: ['Yes', 'No'] },
+          { label: 'Do you have a caregiver or support person at home?', options: ['Yes', 'No'] },
+          { label: 'Are you taking any new medications after your hospital stay?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Home health monitoring (remote patient monitoring)
+      remoteMonitor: {
+        title: 'Home Health Monitoring',
+        questions: [
+          { label: 'Do you have access to devices like a blood pressure monitor or glucose meter?', options: ['Yes', 'No'] },
+          { label: 'Are you comfortable using a smartphone or tablet to track your health?', options: ['Yes', 'No'] },
+          { label: 'Would you like help setting up a health monitoring device?', options: ['Yes', 'No'] },
+          { label: 'Are you willing to share health data with our team?', options: ['Yes', 'No'] },
+          { label: 'Do you have a reliable internet connection?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Therapy exercise coaching (remote therapeutic monitoring)
+      therapyMonitor: {
+        title: 'Exercise Therapy Coaching',
+        questions: [
+          { label: 'Do you have chronic joint or muscle pain?', options: ['Yes', 'No'] },
+          { label: 'Are you currently receiving physical therapy or exercise coaching?', options: ['Yes', 'No'] },
+          { label: 'Would you like guidance on home exercises?', options: ['Yes', 'No'] },
+          { label: 'Do you have space to exercise safely at home?', options: ['Yes', 'No'] },
+          { label: 'Are you comfortable following instructions through an app or video?', options: ['Yes', 'No'] },
+        ],
+      },
+      // HIV prevention & treatment (PrEP/PEP)
+      hiv: {
+        title: 'HIV Prevention & Care',
+        questions: [
+          { label: 'Which service are you seeking?', options: ['Prevention (PrEP)', 'Emergency treatment (PEP)'] },
+          { label: 'Have you tested HIV-negative in the past 3 months?', options: ['Yes', 'No'] },
+          { label: 'Are you allergic to any medications?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Have you been exposed to HIV in the last 72 hours?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Opioid reversal medication (naloxone)
+      naloxone: {
+        title: 'Naloxone Rescue Kit',
+        questions: [
+          { label: 'Do you or someone close to you use opioid medications?', options: ['Yes', 'No'] },
+          { label: 'Have you been trained to administer naloxone?', options: ['Yes', 'No'] },
+          { label: 'Would you like training on how to use naloxone?', options: ['Yes', 'No'] },
+          { label: 'Are you aware of the signs of opioid overdose?', options: ['Yes', 'No'] },
+          { label: 'Have you ever used naloxone before?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Overdose prevention support
+      overdose: {
+        title: 'Prevent Overdose',
+        questions: [
+          { label: 'Are you concerned about opioid overdose for yourself or someone else?', options: ['Yes', 'No'] },
+          { label: 'Do you or someone you know use opioids?', options: ['Yes', 'No'] },
+          { label: 'Would you like education on preventing overdose?', options: ['Yes', 'No'] },
+          { label: 'Do you have access to naloxone?', options: ['Yes', 'No'] },
+          { label: 'Are you interested in counseling or support groups?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Online doctor visit (telehealth)
+      telehealth: {
+        title: 'Virtual Doctor Visit',
+        questions: [
+          { label: 'Is this visit for a new medical issue or a follow-up?', options: ['New issue', 'Follow-up'] },
+          { label: 'Are your symptoms severe (e.g., high fever, difficulty breathing)?', options: ['Yes', 'No'] },
+          { label: 'Do you have a device with video capability?', options: ['Yes', 'No'] },
+          { label: 'Are you comfortable with a virtual visit?', options: ['Yes', 'No'] },
+          { label: 'Do you prefer a male or female provider?', options: ['No preference', 'Male', 'Female'] },
+        ],
+      },
+      // Emergency medication refill
+      emergency: {
+        title: 'Emergency Rx Refill',
+        questions: [
+          { label: 'Is your prescription out of refills?', options: ['Yes', 'No'] },
+          { label: 'Is your regular healthcare provider unavailable?', options: ['Yes', 'No'] },
+          { label: 'Is this medication a controlled substance?', options: ['Yes', 'No', 'Not sure'] },
+          { label: 'Do you have a copy of your prescription label?', options: ['Yes', 'No'] },
+          { label: 'Would you like to schedule a follow-up with our provider?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Quit smoking program
+      quitSmoking: {
+        title: 'Quit Smoking Now!',
+        questions: [
+          { label: 'How many cigarettes do you smoke per day?', options: ['None', '1–10', '11–20', '21+'] },
+          { label: 'Have you tried quitting before?', options: ['Yes', 'No'] },
+          { label: 'Are you interested in medications to help you quit?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have any mental health conditions that make quitting difficult?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Travel health support
+      travel: {
+        title: 'Travel Health Prep',
+        questions: [
+          { label: 'Are you traveling domestically or internationally?', options: ['Domestic', 'International'] },
+          { label: 'Which region are you visiting?', options: ['Africa', 'Asia', 'Latin America', 'Middle East', 'Australia/New Zealand', 'Other'] },
+          { label: 'How soon are you leaving?', options: ['Less than 4 weeks', '4–8 weeks', 'More than 8 weeks', 'Not sure'] },
+          { label: 'Do you need vaccines, medications, or both?', options: ['Vaccines', 'Medications', 'Both', 'Not sure'] },
+          { label: 'Have you had travel vaccinations before?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Specialty shoes ordering
+      shoes: {
+        title: 'Medical Shoes & Orthotics',
+        questions: [
+          { label: 'Do you have a prescription from your doctor for medical shoes?', options: ['Yes', 'No'] },
+          { label: 'Do you have diabetes or neuropathy?', options: ['Yes', 'No'] },
+          { label: 'Do you have foot ulcers or wounds?', options: ['Yes', 'No'] },
+          { label: 'Do you require custom sizing or orthotics?', options: ['Yes', 'No'] },
+          { label: 'Are you able to visit a local location for fitting if needed?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Order lab tests
+      labs: {
+        title: 'Order Lab Tests',
+        questions: [
+          { label: 'Do you have a doctor’s order or recommendation for these tests?', options: ['Yes', 'No'] },
+          { label: 'Have you fasted for at least 8 hours?', options: ['Yes', 'No', 'Not needed'] },
+          { label: 'Are you comfortable with an in-person blood draw?', options: ['Yes', 'No'] },
+          { label: 'Do you need assistance scheduling a lab appointment?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Specialist referral
+      referral: {
+        title: 'Specialist Referral',
+        questions: [
+          { label: 'Which type of specialist do you need?', options: ['Cardiologist', 'Endocrinologist', 'Mental health specialist', 'Dermatologist', 'Other'] },
+          { label: 'Do you have a referral from your primary care doctor?', options: ['Yes', 'No'] },
+          { label: 'Are you experiencing severe or urgent symptoms?', options: ['Yes', 'No'] },
+          { label: 'Are you willing to share your medical records with us?', options: ['Yes', 'No'] },
+          { label: 'Do you need help finding a nearby specialist?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Online mental health (California only)
+      mentalOnline: {
+        title: 'Online Mental Health (CA)',
+        questions: [
+          { label: 'Are you located in California?', options: ['Yes', 'No'] },
+          { label: 'Are you currently working with a mental health provider?', options: ['Yes', 'No'] },
+          { label: 'Are you experiencing any thoughts of self-harm or suicide?', options: ['Yes', 'No'] },
+          { label: 'What type of therapy are you interested in?', options: ['Counseling', 'Medication management', 'Both', 'Not sure'] },
+          { label: 'Do you prefer a male or female therapist?', options: ['No preference', 'Male', 'Female'] },
+        ],
+      },
+      // Insurance prescription support (prior authorization)
+      priorAuth: {
+        title: 'Insurance Help for Meds',
+        questions: [
+          { label: 'Is your medication currently denied by your insurance?', options: ['Yes', 'No'] },
+          { label: 'Are you willing to share your insurance information with us?', options: ['Yes', 'No'] },
+          { label: 'Have you tried filing an appeal yourself?', options: ['Yes', 'No'] },
+          { label: 'Is your medication prescribed for a chronic or acute condition?', options: ['Chronic', 'Acute', 'Both', 'Not sure'] },
+          { label: 'Do you need assistance with copay or patient assistance programs?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Hormone therapy
+      hormone: {
+        title: 'Hormone Balance Therapy',
+        questions: [
+          { label: 'What type of hormone therapy are you seeking?', options: ['Testosterone', 'Estrogen', 'Other'] },
+          { label: 'Have you had hormone level tests in the past 6 months?', options: ['Yes', 'No'] },
+          { label: 'Do you have any existing health conditions (e.g., heart disease, cancer)?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Are you currently working with a healthcare provider for hormone therapy?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Natural & alternative therapy
+      natural: {
+        title: 'Natural & Alternative Therapy',
+        questions: [
+          { label: 'Which type of natural therapy interests you?', options: ['Herbal supplements', 'Mind-body therapy', 'Nutrition counseling', 'Other'] },
+          { label: 'Are you currently taking any prescription medications?', options: ['Yes', 'No'] },
+          { label: 'Do you have any allergies to herbs or supplements?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Would you like an in-person or online session?', options: ['In person', 'Online', 'Both'] },
+        ],
+      },
+      // Sexual health & custom medications
+      sexual: {
+        title: 'Custom Sexual Health',
+        questions: [
+          { label: 'What support are you looking for?', options: ['Erectile function', 'Libido', 'Both'] },
+          { label: 'Are you currently taking any heart or blood pressure medications?', options: ['Yes', 'No'] },
+          { label: 'Do you have any known medication allergies (e.g., sildenafil)?', options: ['Yes', 'No'] },
+          { label: 'Are you experiencing severe side effects from sexual health medications?', options: ['Yes', 'No'] },
+          { label: 'Are you comfortable discussing your sexual health with a provider?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Hair loss management
+      hair: {
+        title: 'Hair Loss Solutions',
+        questions: [
+          { label: 'Have you tried hair loss treatments before?', options: ['Yes', 'No'] },
+          { label: 'Is your hair thinning or balding?', options: ['Thinning', 'Balding', 'Both'] },
+          { label: 'Are you experiencing any scalp irritation?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have any allergies to hair care products?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Birth control & morning-after pills
+      birthControl: {
+        title: 'Birth Control & Emergency Contraception',
+        questions: [
+          { label: 'Are you seeking ongoing birth control or emergency contraception?', options: ['Ongoing', 'Emergency'] },
+          { label: 'Which method do you prefer?', options: ['Pill', 'Patch', 'Ring', 'IUD', 'Unsure'] },
+          { label: 'Are you currently pregnant or suspect you might be?', options: ['Yes', 'No'] },
+          { label: 'Do you have a history of blood clots or stroke?', options: ['Yes', 'No'] },
+          { label: 'Are you a smoker over the age of 35?', options: ['Yes', 'No'] },
+        ],
+      },
+      // In-person immunizations (San Diego)
+      immunizations: {
+        title: 'Vaccines in San Diego',
+        questions: [
+          { label: 'Which vaccines are you seeking?', options: ['COVID', 'Flu', 'Hepatitis', 'Other', 'Not sure'] },
+          { label: 'Have you ever had an allergic reaction to a vaccine?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant?', options: ['Yes', 'No'] },
+          { label: 'Are you located in the San Diego area?', options: ['Yes', 'No'] },
+          { label: 'Do you have any chronic health conditions we should know about?', options: ['Yes', 'No'] },
+        ],
+      },
+      // Onsite blood draw (San Diego)
+      blood: {
+        title: 'Blood Draws in San Diego',
+        questions: [
+          { label: 'Do you have a lab order from a healthcare provider?', options: ['Yes', 'No'] },
+          { label: 'Are you located in the San Diego area?', options: ['Yes', 'No'] },
+          { label: 'Do you have difficulty with blood draws (e.g., fainting)?', options: ['Yes', 'No'] },
+          { label: 'Do you need fasting instructions?', options: ['Yes', 'No'] },
+          { label: 'Are you currently on any blood-thinning medication?', options: ['Yes', 'No'] },
+        ],
+      },
+      // In-person mental health sessions (San Diego)
+      mentalPerson: {
+        title: 'In-Person Mental Health',
+        questions: [
+          { label: 'Are you located in the San Diego area?', options: ['Yes', 'No'] },
+          { label: 'Are you currently seeing a mental health provider?', options: ['Yes', 'No'] },
+          { label: 'Are you comfortable with in-person sessions?', options: ['Yes', 'No'] },
+          { label: 'Are you experiencing severe or urgent mental health symptoms?', options: ['Yes', 'No'] },
+          { label: 'Do you prefer a male or female therapist?', options: ['No preference', 'Male', 'Female'] },
+        ],
+      },
+      // In-person natural therapy (San Diego)
+      naturalPerson: {
+        title: 'Natural Therapy in San Diego',
+        questions: [
+          { label: 'Which type of natural therapy interests you?', options: ['Acupuncture', 'Massage', 'Nutrition', 'Herbal medicine', 'Other'] },
+          { label: 'Are you located in the San Diego area?', options: ['Yes', 'No'] },
+          { label: 'Do you have any allergies to herbs or supplements?', options: ['Yes', 'No'] },
+          { label: 'Are you pregnant or breastfeeding?', options: ['Yes', 'No'] },
+          { label: 'Do you have any chronic medical conditions?', options: ['Yes', 'No'] },
+        ],
+      },
+      // TMS therapy for depression (San Diego)
+      tms: {
+        title: 'TMS Therapy for Depression',
+        questions: [
+          { label: 'Are you located in the San Diego area?', options: ['Yes', 'No'] },
+          { label: 'Have you tried medication for depression?', options: ['Yes', 'No'] },
+          { label: 'Do you have any metal implants or medical devices?', options: ['Yes', 'No'] },
+          { label: 'Have you had a seizure in the past?', options: ['Yes', 'No'] },
+          { label: 'Are you currently pregnant?', options: ['Yes', 'No'] },
+        ],
+      },
+    };
+
+    // Helper function to get query parameters
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // Initialize the page by loading the appropriate service
+    function init() {
+      const serviceId = getQueryParam('service');
+      if (!serviceId || !services[serviceId]) {
+        document.getElementById('pageTitle').textContent = 'Service Not Found';
+        document.querySelector('main').innerHTML = '<p>Sorry, the requested service could not be found. <a href="index.html">Return to services</a>.</p>';
+        return;
+      }
+      const svc = services[serviceId];
+      document.getElementById('pageTitle').textContent = svc.title + ' Intake';
+      const questionsContainer = document.getElementById('questionsContainer');
+      // Clear any existing content
+      questionsContainer.innerHTML = '';
+      // Populate the questions for this service
+      svc.questions.forEach((q, idx) => {
+        const group = document.createElement('div');
+        group.className = 'form-group';
+        const label = document.createElement('label');
+        label.textContent = q.label;
+        group.appendChild(label);
+        const select = document.createElement('select');
+        select.required = true;
+        select.name = 'q' + (idx + 1);
+        select.innerHTML = '<option value="">Select</option>';
+        q.options.forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          select.appendChild(option);
+        });
+        group.appendChild(select);
+        questionsContainer.appendChild(group);
+      });
+    }
+
+    // Handle form submission
+    document.getElementById('intakeForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      alert('Thank you! Your information has been submitted.');
+      // Optionally clear the form
+      this.reset();
+    });
+
+    // Run initialization on load
+    window.onload = init;
+
+    // Payment and insurance method handling
+    const paymentSelect = document.getElementById('paymentSelect');
+    const insuranceDetails = document.getElementById('insuranceDetails');
+    const insuranceMethodSelect = document.getElementById('insuranceMethod');
+    const insuranceUploadContainer = document.getElementById('insuranceUploadContainer');
+    const manualInsuranceContainer = document.getElementById('manualInsuranceContainer');
+    const providerNameInput = document.getElementById('providerName');
+    const memberIdInput = document.getElementById('memberId');
+
+    // Show or hide insurance details based on payment method
+    paymentSelect.addEventListener('change', function () {
+      if (this.value === 'insurance') {
+        insuranceDetails.style.display = 'block';
+      } else {
+        insuranceDetails.style.display = 'none';
+        // Reset insurance method and hide its containers when cash is selected
+        insuranceMethodSelect.value = '';
+        insuranceUploadContainer.style.display = 'none';
+        manualInsuranceContainer.style.display = 'none';
+        // Remove required attributes from manual fields
+        providerNameInput.required = false;
+        memberIdInput.required = false;
+      }
+    });
+
+    // Show upload or manual input based on insurance method
+    insuranceMethodSelect.addEventListener('change', function () {
+      if (this.value === 'upload') {
+        insuranceUploadContainer.style.display = 'block';
+        manualInsuranceContainer.style.display = 'none';
+        // Make manual fields not required
+        providerNameInput.required = false;
+        memberIdInput.required = false;
+      } else if (this.value === 'manual') {
+        insuranceUploadContainer.style.display = 'none';
+        manualInsuranceContainer.style.display = 'block';
+        // Make manual fields required when entering manually
+        providerNameInput.required = true;
+        memberIdInput.required = true;
+      } else {
+        insuranceUploadContainer.style.display = 'none';
+        manualInsuranceContainer.style.display = 'none';
+        providerNameInput.required = false;
+        memberIdInput.required = false;
+      }
+    });
+  </script>
+</body>
+</html>
