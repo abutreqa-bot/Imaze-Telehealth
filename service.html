@@ -104,15 +104,7 @@
           <option value="FL">Florida</option>
         </select>
       </div>
-      <div class="form-group">
-        <label for="ageSelect">Your age group</label>
-        <select id="ageSelect" required>
-          <option value="">Select age group</option>
-          <option value="under18">Under 18</option>
-          <option value="18-64">18 to 64</option>
-          <option value="65+">65 or older</option>
-        </select>
-      </div>
+      <!-- Age group selection removed; age will be determined from the date of birth -->
       <div id="questionsContainer">
         <!-- Service-specific questions will appear here -->
       </div>
@@ -124,6 +116,8 @@
         <label for="dobInput">Date of Birth</label>
         <input type="date" id="dobInput" required>
       </div>
+      <!-- Age warning message -->
+      <div id="ageWarning" style="display:none; color:#c0392b; font-weight:bold; margin-top:10px;"></div>
       <!-- Cash pay disclosure -->
       <div class="form-group cash-disclosure">
         <p><strong>By selecting Cash Pay, I understand that no claim will be submitted to my insurance for this service, and I will be personally responsible for payment. If I am uninsured or electing to self-pay for privacy or other reasons, I will receive a Good Faith Estimate of costs.</strong></p>
@@ -173,16 +167,17 @@
         </div>
       </div>
 
-      <!-- Disclaimer checkbox -->
+      <!-- Notices and Disclaimers checkbox -->
       <div class="form-group">
         <input type="checkbox" id="disclaimerCheck" required>
-        <label for="disclaimerCheck" class="disclaimer-label">I have read and agree to the following disclaimer:</label>
+        <label for="disclaimerCheck" class="disclaimer-label">I have read and agree to the following Notices and Disclaimers:</label>
         <div class="disclaimer-text">
-          <p><strong>Disclaimer:</strong> All services and medications offered through this platform are provided only after a licensed healthcare provider conducts an evaluation and determines that the requested therapy is safe, appropriate, and medically necessary.</p>
+          <p><strong>Notices and Disclaimers:</strong> All services and medications offered through this platform are provided only after a licensed healthcare provider conducts an evaluation and determines that the requested therapy is safe, appropriate, and medically necessary.</p>
           <p><strong>Some treatments may involve compounded or off-label medications that are not FDA-approved for all uses discussed.</strong></p>
           <p><strong>Submission of a request through this platform does not guarantee approval or receipt of any medication or service. Access to therapy is subject to patient eligibility, applicable federal and state regulations, provider clinical judgment, and availability of medications.</strong></p>
           <p><strong>Patients understand that telehealth services are limited to residents of California, Texas, and Florida, and services will only be provided where the supervising physician is licensed.</strong></p>
           <p><strong>Controlled-substance prescribing may be restricted by state and federal law; GFE rights (if self-pay).</strong></p>
+          <p><strong>We do not prescribe any controlled medications online except for Testosterone injection therapy for eligible patients.</strong></p>
           <p><strong>By proceeding, patients acknowledge that:</strong></p>
           <ul>
             <li>Final approval for any treatment rests solely with the provider.</li>
@@ -193,7 +188,7 @@
         </div>
       </div>
       <div class="form-actions">
-        <button type="submit">Submit</button>
+        <button type="submit" id="submitButton">Submit</button>
       </div>
     </form>
   </main>
@@ -675,6 +670,36 @@
 
     // Run initialization on load
     window.onload = init;
+    // Age verification: block access for patients under 18
+    // When the date of birth field changes, calculate the age and show warning if under 18
+    const dobInputEl = document.getElementById('dobInput');
+    const ageWarningEl = document.getElementById('ageWarning');
+    const submitButtonEl = document.getElementById('submitButton');
+    if (dobInputEl && ageWarningEl && submitButtonEl) {
+      dobInputEl.addEventListener('change', function () {
+        // If no date selected, reset warning and enable submission
+        if (!this.value) {
+          ageWarningEl.style.display = 'none';
+          submitButtonEl.disabled = false;
+          return;
+        }
+        const dobDate = new Date(this.value);
+        const now = new Date();
+        let age = now.getFullYear() - dobDate.getFullYear();
+        const monthDiff = now.getMonth() - dobDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dobDate.getDate())) {
+          age--;
+        }
+        if (age < 18) {
+          ageWarningEl.textContent = 'At this time, our telehealth services are available only to patients who are 18 years of age or older. Unfortunately, we cannot continue with your intake.';
+          ageWarningEl.style.display = 'block';
+          submitButtonEl.disabled = true;
+        } else {
+          ageWarningEl.style.display = 'none';
+          submitButtonEl.disabled = false;
+        }
+      });
+    }
 
     // Payment and insurance method handling
     const paymentSelect = document.getElementById('paymentSelect');
