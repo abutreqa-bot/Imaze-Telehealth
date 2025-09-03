@@ -67,6 +67,14 @@
       background-color: #1A2A38;
     }
 
+    /* Cash pay disclosure styling */
+    .cash-disclosure div {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
     /* Disclaimer styling */
     .disclaimer-label {
       display: inline;
@@ -115,6 +123,15 @@
       <div class="form-group">
         <label for="dobInput">Date of Birth</label>
         <input type="date" id="dobInput" required>
+      </div>
+      <!-- Cash pay disclosure -->
+      <div class="form-group cash-disclosure">
+        <p><strong>By selecting Cash Pay, I understand that no claim will be submitted to my insurance for this service, and I will be personally responsible for payment. If I am uninsured or electing to self-pay for privacy or other reasons, I will receive a Good Faith Estimate of costs.</strong></p>
+        <p><strong>Moreover, if I am covered by Medicaid, Medi-Cal, or another state Medicaid program, I understand that I cannot pay cash for services that are covered benefits under my plan. I may only pay cash for services that are not covered, and I may be asked to sign a waiver confirming this choice.</strong></p>
+        <div>
+          <input type="checkbox" id="cashPolicyCheck" required>
+          <label for="cashPolicyCheck">I confirm that I have read and understand the above policy and that my selection of cash pay is voluntary and complies with my insurance requirements.</label>
+        </div>
       </div>
       <!-- Payment and insurance details -->
       <div class="form-group">
@@ -165,6 +182,7 @@
           <p><strong>Some treatments may involve compounded or off-label medications that are not FDA-approved for all uses discussed.</strong></p>
           <p><strong>Submission of a request through this platform does not guarantee approval or receipt of any medication or service. Access to therapy is subject to patient eligibility, applicable federal and state regulations, provider clinical judgment, and availability of medications.</strong></p>
           <p><strong>Patients understand that telehealth services are limited to residents of California, Texas, and Florida, and services will only be provided where the supervising physician is licensed.</strong></p>
+          <p><strong>Controlled-substance prescribing may be restricted by state and federal law; GFE rights (if self-pay).</strong></p>
           <p><strong>By proceeding, patients acknowledge that:</strong></p>
           <ul>
             <li>Final approval for any treatment rests solely with the provider.</li>
@@ -630,6 +648,21 @@
         group.appendChild(select);
         questionsContainer.appendChild(group);
       });
+
+      // Remove insurance option and hide insurance details for cash-only services
+      const cashOnlyServices = ['semaglutide','tirzepatide','testosterone','nad','sermorelin','hcg','omnitrope','tralement','enclomiphene','natural','naturalPerson','sexual','hair'];
+      if (cashOnlyServices.includes(serviceId)) {
+        const paymentSelectEl = document.getElementById('paymentSelect');
+        const insuranceDetailsEl = document.getElementById('insuranceDetails');
+        // Remove the insurance option from the payment method dropdown
+        Array.from(paymentSelectEl.options).forEach(option => {
+          if (option.value === 'insurance') {
+            paymentSelectEl.removeChild(option);
+          }
+        });
+        // Hide insurance details section
+        insuranceDetailsEl.style.display = 'none';
+      }
     }
 
     // Handle form submission
